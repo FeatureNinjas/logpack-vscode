@@ -28,11 +28,11 @@ export class LogPack extends vscode.TreeItem {
       this.setDownloaded(false)
     }
 
-    this.command = {
+    /* this.command = {
       command: 'logpack.doubleClick',
       title: 'select logpack for double click',
       arguments: [this]
-    };
+    }; */
   }
 
   get description(): string {

@@ -2,7 +2,7 @@
 // Import the module and reference it with the alias vscode in your code below
 import * as vscode from 'vscode'
 import * as path from 'path'
-import { LogPackProvider } from './logPacksProvider'
+import { LogPackProvider } from './LogPackProvider'
 import { LogPackEntry } from './LogPackEntry'
 
 // this method is called when your extension is activated
@@ -36,7 +36,7 @@ export function activate(context: vscode.ExtensionContext) {
   })
   vscode.commands.registerCommand('logpack.refreshAll', () => { logPackProvider.refreshAll() })
   vscode.commands.registerCommand('logpack.download', lp => logPackProvider.download(lp))
-  vscode.commands.registerCommand('logpack.doubleClick', async lp => await logPackProvider.doubleClick(lp))
+  //vscode.commands.registerCommand('logpack.doubleClick', async lp => await logPackProvider.doubleClick(lp))
   vscode.commands.registerCommand('logpack.remove', (lp, lps) => logPackProvider.remove(lp, lps))
   vscode.commands.registerCommand('logpack.delete', (lp, lps) => logPackProvider.delete(lp, lps))
 }

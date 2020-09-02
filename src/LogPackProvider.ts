@@ -5,15 +5,30 @@ import * as ftp from 'basic-ftp'
 import { LogPackEntry } from './LogPackEntry'
 import { LogPack } from './LogPack'
 import { KeyObject } from 'crypto'
+import { FtpSink } from './sinks/FtpSink'
+import { LogPackGroup } from './LogPackGroup'
 
-export class LogPackProvider implements vscode.TreeDataProvider<LogPack | LogPackEntry> {
+enum LogPackExplorerViewMode {
+  Flat,
+  GroupByReturnCode
+}
+
+export class LogPackProvider implements vscode.TreeDataProvider<LogPack | LogPackEntry | LogPackGroup> {
+
+  private viewMode: LogPackExplorerViewMode = LogPackExplorerViewMode.Flat // time, groupByCode
+  private downloadDuringLoad: boolean = true
+  private data: LogPack[] | undefined = new Array<LogPack>()
 
   private previousSelection: [LogPack | undefined, Number] = [undefined, 0]
 
   private _onDidChangeTreeData: vscode.EventEmitter<LogPack | undefined | void> = new vscode.EventEmitter<LogPack | undefined | void>()
   readonly onDidChangeTreeData: vscode.Event<LogPack | undefined | void> = this._onDidChangeTreeData.event
 
-  // constructor
+  /**
+   * Default constructor
+   *
+   * @param storagePath The path to where the log packs are stored locally
+   */
   constructor(private storagePath: string | undefined) {
     console.log('Hello LogPack')
   }
@@ -24,7 +39,11 @@ export class LogPackProvider implements vscode.TreeDataProvider<LogPack | LogPac
   }
 
   // get children
-  async getChildren(element?: LogPack | LogPackEntry): Promise<LogPack[] | LogPackEntry[]> {
+  async getChildren(element?: LogPack | LogPackEntry | LogPackGroup): Promise<LogPack[] | LogPackEntry[] | LogPackGroup[]> {
+
+    if (element !== undefined && element instanceof LogPackGroup) {
+      return Promise.resolve(element.logPacks)
+    }
 
     if (element !== undefined && element instanceof LogPack) {
       console.log('Loading logpack element')
@@ -40,8 +59,7 @@ export class LogPackProvider implements vscode.TreeDataProvider<LogPack | LogPac
           logPackEntries.push(new LogPackEntry(
             entries[i].name,
             path.join(element.localPath.toString(), entries[i].name),
-            entries[i]
-          ))
+            entries[i]))
         }
       }
       console.log(logPackEntries.length)
@@ -70,48 +88,76 @@ export class LogPackProvider implements vscode.TreeDataProvider<LogPack | LogPac
     }
     else if (element === undefined) {
 
-      const config = vscode.workspace.getConfiguration('logPack')
-      const ftpServer: string | undefined = config.get('ftp.server')
-      if (ftpServer === '') {
-        vscode.window.showErrorMessage('No FTP server specified for LogPack')
-        return Promise.resolve([])
+      // check if all data has to be reloaded from the server
+      if (this.downloadDuringLoad) {
+        // it is requested to reload the whole list from the sink
+        const sink = new FtpSink(this.storagePath)
+        const lps = await sink.list()
+        this.data = lps
       }
-      const ftpUsername: string | undefined = config.get('ftp.user')
-      const ftpPassword: string | undefined = config.get('ftp.password')
 
-      console.log('Reloading tree')
+      // now organize the data in the tree accordingly
+      if (this.data !== undefined) {
 
-      const client = new ftp.Client()
+        if (this.viewMode === LogPackExplorerViewMode.Flat) {
+          // flat, just as they come from the server, don't do anything
+          return Promise.resolve(this.data)
 
-      try {
-        await client.access({
-          host: ftpServer,
-          user: ftpUsername,
-          password: ftpPassword
-        })
-        const files = await client.list()
-        const logpacks: LogPack[] = new Array()
-        for (let i = 0; i < files.length; i++) {
-          const file = files[i]
-          if (file.name.startsWith('logpack') && file.isFile) {
-            const name = file.name.substr(
-              file.name.indexOf('-') + 1,
-              file.name.length - (file.name.indexOf('-') + 1) - '.zip'.length)
-            const size = this.formatBytes(file.size)
-            const logpack = new LogPack(name, file, this.storagePath?.toString(), size, vscode.TreeItemCollapsibleState.None)
-            logpacks.push(logpack)
+        } else if (this.viewMode === LogPackExplorerViewMode.GroupByReturnCode) {
+
+          const regexGroup = /[0-9]{8}-[0-9]{6}-(\w*)-[\w\W]*/g
+          const groups: LogPackGroup[] = new Array<LogPackGroup>()
+          for (let i = 0; i < this.data.length; i++) {
+            const lp = this.data[i];
+            const match = regexGroup.exec(lp.label)
+            if (match !== null) {
+              const groupName: string = match[1]
+
+              // search for an existing group
+              let group: LogPackGroup | null = null
+              for (let j = 0; j < groups.length; j++) {
+                group = groups[j];
+                if (group.label === groupName) {
+                  break
+                }
+                group = null
+              }
+
+              // create new group if required
+              if (group === null) {
+                group = new LogPackGroup(groupName, new Array<LogPack>())
+                groups.push(group)
+              }
+
+              group.push(lp)
+            } else {
+              console.log('Could not assign this logpack to a group' + lp)
+            }
           }
+
+          return Promise.resolve(groups)
         }
-        return Promise.resolve(logpacks)
-      } catch (error) {
-        vscode.window.showErrorMessage(`LogPack: ${error}`)
-        console.error(error)
+      }
+
+      if (this.data !== undefined) {
       }
     }
     return Promise.resolve([])
   }
 
   refreshAll() {
+    this.data = []
+    this.downloadDuringLoad = true
+    this._onDidChangeTreeData.fire()
+  }
+
+  changeView() {
+    this.downloadDuringLoad = false
+    if (this.viewMode === LogPackExplorerViewMode.Flat) {
+      this.viewMode = LogPackExplorerViewMode.GroupByReturnCode
+    } else {
+      this.viewMode = LogPackExplorerViewMode.Flat
+    }
     this._onDidChangeTreeData.fire()
   }
 
@@ -190,17 +236,5 @@ export class LogPackProvider implements vscode.TreeDataProvider<LogPack | LogPac
       console.log('package selected')
     }
     this.previousSelection = [lp, Date.now()]
-  }
-
-  formatBytes(bytes: number, decimals = 2): string {
-    if (bytes === 0) return '0 Bytes';
-
-    const k = 1024;
-    const dm = decimals < 0 ? 0 : decimals;
-    const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
-
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
   }
 }

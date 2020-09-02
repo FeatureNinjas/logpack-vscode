@@ -45,6 +45,14 @@
         }
       },
       {
+        "command": "logpack.changeView",
+        "title": "View",
+        "icon": {
+          "light": "assets/synchronize 3.svg",
+          "dark": "assets/synchronize 3.svg"
+        }
+      },
+      {
         "command": "logpack.download",
         "title": "Download",
         "icon": {
@@ -82,6 +90,11 @@
     },
     "menus": {
       "view/title": [
+        {
+          "command": "logpack.changeView",
+          "when": "view == logpacks",
+          "group": "navigation"
+        },
         {
           "command": "logpack.refreshAll",
           "when": "view == logpacks",

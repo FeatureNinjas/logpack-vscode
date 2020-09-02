@@ -35,6 +35,7 @@ export function activate(context: vscode.ExtensionContext) {
     await vscode.window.showTextDocument(doc, { preview: false })
   })
   vscode.commands.registerCommand('logpack.refreshAll', () => { logPackProvider.refreshAll() })
+  vscode.commands.registerCommand('logpack.changeView', () => { logPackProvider.changeView() })
   vscode.commands.registerCommand('logpack.download', lp => logPackProvider.download(lp))
   //vscode.commands.registerCommand('logpack.doubleClick', async lp => await logPackProvider.doubleClick(lp))
   vscode.commands.registerCommand('logpack.remove', (lp, lps) => logPackProvider.remove(lp, lps))

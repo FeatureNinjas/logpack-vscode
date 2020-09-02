@@ -77,12 +77,21 @@ export class LogPack extends vscode.TreeItem {
       return
     }
     try {
+      const config = vscode.workspace.getConfiguration('logPack')
+      const ftpServer: string | undefined = config.get('ftp.server')
+      if (ftpServer === '') {
+        vscode.window.showErrorMessage('No FTP server specified for LogPack')
+        return Promise.resolve([])
+      }
+      const ftpUsername: string | undefined = config.get('ftp.user')
+      const ftpPassword: string | undefined = config.get('ftp.password')
+
       // download the file
       const client = new ftp.Client();
       await client.access({
-        host: 'waws-prod-db3-139.ftp.azurewebsites.windows.net',
-        user: 'lp-test-storage\\$lp-test-storage',
-        password: 'yQGWZ2mRCcezEqKEgR2kYrjlceJimhg6nj5c41PQwHige6hrcX1kehin2LYb'
+        host: ftpServer,
+        user: ftpUsername,
+        password: ftpPassword
       });
       const downloadPath = path.join(this.storagePath, 'logpacks')
       const extractPath = path.join(this.storagePath, 'logpacks', this.label)
@@ -135,12 +144,21 @@ export class LogPack extends vscode.TreeItem {
     // delete locally
     await this.remove()
 
+    const config = vscode.workspace.getConfiguration('logPack')
+    const ftpServer: string | undefined = config.get('ftp.server')
+    if (ftpServer === '') {
+      vscode.window.showErrorMessage('No FTP server specified for LogPack')
+      return Promise.resolve([])
+    }
+    const ftpUsername: string | undefined = config.get('ftp.user')
+    const ftpPassword: string | undefined = config.get('ftp.password')
+
     // delete on remote
     const client = new ftp.Client();
     await client.access({
-      host: 'waws-prod-db3-139.ftp.azurewebsites.windows.net',
-      user: 'lp-test-storage\\$lp-test-storage',
-      password: 'yQGWZ2mRCcezEqKEgR2kYrjlceJimhg6nj5c41PQwHige6hrcX1kehin2LYb'
+      host: ftpServer,
+      user: ftpUsername,
+      password: ftpPassword
     });
     await client.remove(this.fileInfo.name)
 

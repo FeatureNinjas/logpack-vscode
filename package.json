@@ -2,9 +2,10 @@
   "name": "logpack",
   "displayName": "LogPack",
   "description": "LogPack Explorer",
-  "version": "0.0.1",
+  "version": "0.1.0",
+  "publisher": "FeatureNinjas",
   "engines": {
-    "vscode": "^1.46.0"
+    "vscode": "^1.47.0"
   },
   "categories": [
     "Other"
@@ -15,6 +16,25 @@
   ],
   "main": "./out/extension.js",
   "contributes": {
+    "configuration":[
+      {
+        "title": "LogPack",
+        "properties": {
+          "logPack.ftp.server": {
+            "type": "string",
+            "description": "FTP server URL"
+          },
+          "logPack.ftp.user": {
+            "type": "string",
+            "description": "User name for FTP server access"
+          },
+          "logPack.ftp.password": {
+            "type": "string",
+            "description": "Password to access the FTP server"
+          }
+        }
+      }
+    ],
     "commands": [
       {
         "command": "logpack.refreshAll",

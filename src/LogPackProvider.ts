@@ -69,15 +69,25 @@ export class LogPackProvider implements vscode.TreeDataProvider<LogPack | LogPac
       return Promise.resolve(logPackEntries)
     }
     else if (element === undefined) {
+
+      const config = vscode.workspace.getConfiguration('logPack')
+      const ftpServer: string | undefined = config.get('ftp.server')
+      if (ftpServer === '') {
+        vscode.window.showErrorMessage('No FTP server specified for LogPack')
+        return Promise.resolve([])
+      }
+      const ftpUsername: string | undefined = config.get('ftp.user')
+      const ftpPassword: string | undefined = config.get('ftp.password')
+
       console.log('Reloading tree')
 
       const client = new ftp.Client()
 
       try {
         await client.access({
-          host: 'waws-prod-db3-139.ftp.azurewebsites.windows.net',
-          user: 'lp-test-storage\\$lp-test-storage',
-          password: 'yQGWZ2mRCcezEqKEgR2kYrjlceJimhg6nj5c41PQwHige6hrcX1kehin2LYb'
+          host: ftpServer,
+          user: ftpUsername,
+          password: ftpPassword
         })
         const files = await client.list()
         const logpacks: LogPack[] = new Array()
@@ -94,6 +104,7 @@ export class LogPackProvider implements vscode.TreeDataProvider<LogPack | LogPac
         }
         return Promise.resolve(logpacks)
       } catch (error) {
+        vscode.window.showErrorMessage(`LogPack: ${error}`)
         console.error(error)
       }
     }

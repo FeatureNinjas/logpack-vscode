@@ -2,7 +2,7 @@
   "name": "logpack",
   "displayName": "LogPack",
   "description": "LogPack Explorer",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "publisher": "FeatureNinjas",
   "engines": {
     "vscode": "^1.47.0"
@@ -48,8 +48,8 @@
         "command": "logpack.changeView",
         "title": "View",
         "icon": {
-          "light": "assets/synchronize 3.svg",
-          "dark": "assets/synchronize 3.svg"
+          "light": "assets/hierarchy 1.svg",
+          "dark": "assets/hierarchy 1.svg"
         }
       },
       {

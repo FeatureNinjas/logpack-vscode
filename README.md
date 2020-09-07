@@ -37,10 +37,14 @@ Calling out known issues can help limit users opening duplicate issues against y
 
 Users appreciate release notes as you update your extension.
 
-### 0.0.1
+### 0.0.2
 
 Initial release of LogPacks
 
-### 0.0.2
+### 0.1.0
 
 Created first publishable package
+
+### 0.2.0
+
+Added first version of grouping error messages based on return code

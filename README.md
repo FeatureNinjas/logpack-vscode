@@ -2,13 +2,14 @@
   <a href="https://github.com/FeatureNinjas/logpack-vscode">
     <img width="200" height="200" src="images/Logo-05.svg">
   </a>
+  <br><br>
 </div>
 
 LogPack takes snapshots of your system when unexpected errors occur. A LogPack contains more than just logs. It bundles anything that is required to solve the problem.
 
 # Visual Studio Code extension
 
-A LogPack basically is a zip file. However, the Visual Studio Code extension in this repository is the tool to work with those bundles. In order to package LogPacks, you need to include and SDK and upload them a supported sink. This repository hosts the Visual Studio Code extensions. Check the supported sinks below for links to the other repositories.
+A LogPack basically is a zip file. However, the Visual Studio Code extension in this repository is the tool to work with those bundles. In order to package LogPacks, you need to include an SDK and upload them to a supported sink. This repository hosts the Visual Studio Code extensions. Check the supported sinks below for links to the other repositories.
 
 ## Supported SDKs
 

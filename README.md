@@ -1,6 +1,26 @@
-# LogPack README
+# LogPack
 
-LogPack is an extension to load and manage log packs in Visual Studio Code.
+LogPack takes snapshots of your system when unexpected errors occur. A LogPack contains more than just logs. It bundles anything that is required to solve the problem.
+
+# Visual Studio Code extension
+
+A LogPack basically is a zip file. However, the Visual Studio Code extension in this repository is the tool to work with those bundles. In order to package LogPacks, you need to include and SDK and upload them a supported sink. This repository hosts the Visual Studio Code extensions. Check the supported sinks below for links to the other repositories.
+
+## Supported SDKs
+
+| SDK | Repo | Registry |
+| - | - | - |
+| ASP.NET Core 3.2 | https://github.com/FeatureNinjas/logpack-sdk-net | |
+
+## Supported Sinks
+
+- FTP
+
+# What and Why?
+
+Services that provide logging as a service collect all logs and allow you to search and filter using keywords or specific log files. In production however, we would like to collect as less logs as possible to limit the price for the services. Furthermore, we ran into issues where environment variables were not correctly set in the production or staging environment and had issues with different versions of NuGet packages. Analyzing such issues took us a lot of time which is why we came up with the idea of LogPack. Whenever an unexpected issue happens, collect everything related to this issue and store it packaged as a zip file on an FTP server. So no more logs for API calls with return code 200. But literally everything necessary to analyze failed API calls with return code 500.
+
+> Special note: LogPack is a product created while creating FeatureNinjas. We use it to analyze our server issues. If you want to have more infos on FeatureNinjas, a feature flagging service for developers, then check out https://featureninjas.com.
 
 ## Features
 
@@ -11,17 +31,13 @@ Describe specific features of your extension including screenshots of your exten
 
 For example if there is an image subfolder under your extension project workspace:
 
-\!\[LogPack Explorer\]\(images/LogPack Explorer.png\)
+![LogPack Explorer](images/LogPack%20Explorer.png?raw=true)
 
 ## Requirements
 
-Nothing special required. Only VsCode 1.47 upwards.
+Visual Studio Code 1.47 upwards.
 
 ## Extension Settings
-
-Include if your extension adds any VS Code settings through the `contributes.configuration` extension point.
-
-For example:
 
 This extension contributes the following settings:
 
@@ -31,11 +47,20 @@ This extension contributes the following settings:
 
 ## Known Issues
 
-Calling out known issues can help limit users opening duplicate issues against your extension.
+None known currently... Create issues here or in the other projects for bug reports or feature requests...
+
+# Roadmap
+
+The following list contains features that we're planning to implement in the next updates. Help us prioritize by giving us feedback
+
+- Support for NodeJS
+- Add more upload sinks (e.g. OneDrive, AWS, ...)
+- Offer online storage so you don't have to care about FTP or any other service 
+- ...
+
+Missing something? Create an issue or contact us directly.
 
 ## Release Notes
-
-Users appreciate release notes as you update your extension.
 
 ### 0.0.2
 

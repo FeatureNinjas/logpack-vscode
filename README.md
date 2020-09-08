@@ -1,4 +1,8 @@
-# LogPack
+<div align="center">
+  <a href="https://github.com/FeatureNinjas/logpack-vscode">
+    <img width="200" height="200" src="images/Logo-05.svg">
+  </a>
+</div>
 
 LogPack takes snapshots of your system when unexpected errors occur. A LogPack contains more than just logs. It bundles anything that is required to solve the problem.
 

@@ -10,12 +10,13 @@ import { LogPackGroup } from './LogPackGroup'
 
 enum LogPackExplorerViewMode {
   Flat,
-  GroupByReturnCode
+  GroupByReturnCode,
+  GroupByDate
 }
 
 export class LogPackProvider implements vscode.TreeDataProvider<LogPack | LogPackEntry | LogPackGroup> {
 
-  private viewMode: LogPackExplorerViewMode = LogPackExplorerViewMode.Flat // time, groupByCode
+  private viewMode: LogPackExplorerViewMode = LogPackExplorerViewMode.GroupByDate // time, groupByCode
   private downloadDuringLoad: boolean = true
   private data: LogPack[] | undefined = new Array<LogPack>()
 
@@ -136,6 +137,42 @@ export class LogPackProvider implements vscode.TreeDataProvider<LogPack | LogPac
           }
 
           return Promise.resolve(groups)
+        } else if (this.viewMode === LogPackExplorerViewMode.GroupByDate) {
+
+          const regexGroup = /([0-9]{4})([0-9]{2})([0-9]{2})-[0-9]{6}-\w*-[\w\W]*/g
+          const groups: LogPackGroup[] = new Array<LogPackGroup>()
+          for (let i = 0; i < this.data.length; i++) {
+            const lp = this.data[i];
+            const match = regexGroup.exec(lp.label)
+            if (match !== null) {
+              const year: string = match[1]
+              const month: string = match[2]
+              const day: string = match[3]
+              const date: string = `${year}-${month}-${day}`
+
+              // search for an existing group
+              let group: LogPackGroup | null = null
+              for (let j = 0; j < groups.length; j++) {
+                group = groups[j];
+                if (group.label === date) {
+                  break
+                }
+                group = null
+              }
+
+              // create new group if required
+              if (group === null) {
+                group = new LogPackGroup(date, new Array<LogPack>())
+                groups.push(group)
+              }
+
+              group.push(lp)
+            } else {
+              console.log('Could not assign this logpack to a group' + lp)
+            }
+          }
+
+          return Promise.resolve(groups)
         }
       }
 
@@ -151,13 +188,21 @@ export class LogPackProvider implements vscode.TreeDataProvider<LogPack | LogPac
     this._onDidChangeTreeData.fire()
   }
 
-  changeView() {
+  showList() {
     this.downloadDuringLoad = false
-    if (this.viewMode === LogPackExplorerViewMode.Flat) {
-      this.viewMode = LogPackExplorerViewMode.GroupByReturnCode
-    } else {
-      this.viewMode = LogPackExplorerViewMode.Flat
-    }
+    this.viewMode = LogPackExplorerViewMode.Flat
+    this._onDidChangeTreeData.fire()
+  }
+
+  groupByReturnCode() {
+    this.downloadDuringLoad = false
+    this.viewMode = LogPackExplorerViewMode.GroupByReturnCode
+    this._onDidChangeTreeData.fire()
+  }
+
+  groupByDate() {
+    this.downloadDuringLoad = false
+    this.viewMode = LogPackExplorerViewMode.GroupByDate
     this._onDidChangeTreeData.fire()
   }
 

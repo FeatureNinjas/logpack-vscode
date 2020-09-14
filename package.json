@@ -45,20 +45,20 @@
         }
       },
       {
-        "command": "logpack.changeView",
-        "title": "View",
-        "icon": {
-          "light": "assets/hierarchy 1.svg",
-          "dark": "assets/hierarchy 1.svg"
-        }
+        "command": "logpack.showList",
+        "title": "Show List"
+      },
+      {
+        "command": "logpack.groupByReturnCode",
+        "title": "Group by error code"
+      },
+      {
+        "command": "logpack.groupByDate",
+        "title": "Group by date"
       },
       {
         "command": "logpack.download",
-        "title": "Download",
-        "icon": {
-          "light": "assets/download 3.svg",
-          "dark": "assets/download 3.svg"
-        }
+        "title": "Download"
       },
       {
         "command": "logpack.remove",
@@ -91,9 +91,16 @@
     "menus": {
       "view/title": [
         {
-          "command": "logpack.changeView",
-          "when": "view == logpacks",
-          "group": "navigation"
+          "command": "logpack.showList",
+          "when": "view == logpacks"
+        },
+        {
+          "command": "logpack.groupByReturnCode",
+          "when": "view == logpacks"
+        },
+        {
+          "command": "logpack.groupByDate",
+          "when": "view == logpacks"
         },
         {
           "command": "logpack.refreshAll",

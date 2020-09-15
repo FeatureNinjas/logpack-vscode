@@ -2,6 +2,8 @@ import * as vscode from 'vscode'
 import { LogPack } from './LogPack'
 
 export class LogPackGroup extends vscode.TreeItem {
+  contextValue = 'group'
+
   constructor(
     public readonly label: string,
     public readonly logPacks: LogPack[]

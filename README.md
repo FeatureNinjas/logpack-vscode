@@ -1,6 +1,6 @@
 <div align="center">
   <a href="https://github.com/FeatureNinjas/logpack-vscode">
-    <img width="200" height="200" src="images/Logo-05.svg">
+    <img width="200" height="200" src="images/logpack-logo-200.png  ">
   </a>
   <br><br>
 </div>

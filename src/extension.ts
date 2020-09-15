@@ -42,6 +42,8 @@ export function activate(context: vscode.ExtensionContext) {
   //vscode.commands.registerCommand('logpack.doubleClick', async lp => await logPackProvider.doubleClick(lp))
   vscode.commands.registerCommand('logpack.remove', (lp, lps) => logPackProvider.remove(lp, lps))
   vscode.commands.registerCommand('logpack.delete', (lp, lps) => logPackProvider.delete(lp, lps))
+  vscode.commands.registerCommand('logpack.removeGroup', (gp) => logPackProvider.removeGroup(gp))
+  vscode.commands.registerCommand('logpack.deleteGroup', (gp) => logPackProvider.deleteGroup(gp))
 }
 
 // this method is called when your extension is deactivated

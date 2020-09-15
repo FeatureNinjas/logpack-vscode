@@ -1,13 +1,14 @@
-import * as vscode from 'vscode';
-import * as fs from 'fs';
-import * as path from 'path';
-import * as ftp from 'basic-ftp';
-import { FileInfo } from 'basic-ftp';
-const AdmZip = require('adm-zip');
+import * as vscode from 'vscode'
+import * as fs from 'fs'
+import * as path from 'path'
+import * as ftp from 'basic-ftp'
+import { FileInfo } from 'basic-ftp'
+const AdmZip = require('adm-zip')
 const afs = fs.promises;
 
 export class LogPack extends vscode.TreeItem {
   isDownloaded: boolean = false
+  contextValue = 'logpack'
 
   constructor(
     public readonly label: string,
@@ -176,6 +177,4 @@ export class LogPack extends vscode.TreeItem {
       await afs.rmdir(p);
     }
   }
-
-  contextValue = 'logpack';
 }

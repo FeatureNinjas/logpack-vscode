@@ -1,12 +1,10 @@
-import * as vscode from 'vscode'
 import * as fs from 'fs'
 import * as path from 'path'
-import * as ftp from 'basic-ftp'
-import { LogPackEntry } from './LogPackEntry'
+import * as vscode from 'vscode'
 import { LogPack } from './LogPack'
-import { KeyObject } from 'crypto'
-import { FtpSink } from './sinks/FtpSink'
+import { LogPackEntry } from './LogPackEntry'
 import { LogPackGroup } from './LogPackGroup'
+import { FtpSink } from './sinks/FtpSink'
 
 enum LogPackExplorerViewMode {
   Flat,
@@ -22,8 +20,8 @@ export class LogPackProvider implements vscode.TreeDataProvider<LogPack | LogPac
 
   private previousSelection: [LogPack | undefined, Number] = [undefined, 0]
 
-  private _onDidChangeTreeData: vscode.EventEmitter<LogPack | undefined | void> = new vscode.EventEmitter<LogPack | undefined | void>()
-  readonly onDidChangeTreeData: vscode.Event<LogPack | undefined | void> = this._onDidChangeTreeData.event
+  private _onDidChangeTreeData: vscode.EventEmitter<LogPack | undefined | void | LogPackGroup> = new vscode.EventEmitter<LogPack | undefined | void | LogPackGroup>()
+  readonly onDidChangeTreeData: vscode.Event<LogPack | undefined | void | LogPackGroup> = this._onDidChangeTreeData.event
 
   /**
    * Default constructor
@@ -216,6 +214,51 @@ export class LogPackProvider implements vscode.TreeDataProvider<LogPack | LogPac
     }
   }
 
+  async removeGroup(gp: LogPackGroup): Promise<any> {
+    console.log(`About to remove the group ${gp}`)
+    vscode.window.withProgress({
+      location: vscode.ProgressLocation.Notification,
+      title: 'LogPack',
+      cancellable: false
+    }, async (progress) => {
+      for (let i = 0; i < gp.logPacks.length; i++) {
+        console.log(`Deleting on local and remote ${gp.logPacks[i].fileInfo.name}`)
+        await gp.logPacks[i].remove();
+        progress.report({
+          message: `Removed ${i + 1} of ${gp.logPacks.length} LogPacks from local`,
+          increment: (1 / gp.logPacks.length) * 100
+        })
+      }
+      this._onDidChangeTreeData.fire(gp)
+      return new Promise(resolve => {
+        setTimeout(() => { resolve() }, 3000)
+      })
+    })
+    this._onDidChangeTreeData.fire(gp)
+  }
+
+  async deleteGroup(gp: LogPackGroup): Promise<any> {
+    console.log(`About to delete the group ${gp}`)
+    vscode.window.withProgress({
+      location: vscode.ProgressLocation.Notification,
+      title: 'LogPack',
+      cancellable: false
+    }, async (progress) => {
+      for (let i = 0; i < gp.logPacks.length; i++) {
+        console.log(`Deleting on local and remote ${gp.logPacks[i].fileInfo.name}`)
+        await gp.logPacks[i].delete();
+        progress.report({
+          message: `Deleted ${i + 1} of ${gp.logPacks.length} LogPacks`,
+          increment: (1 / gp.logPacks.length) * 100
+        })
+      }
+      return new Promise(resolve => {
+        setTimeout(() => { resolve() }, 3000)
+      })
+    })
+    this._onDidChangeTreeData.fire()
+  }
+
   async remove(lp: LogPack, lps: LogPack[]): Promise<any> {
     if (lps !== undefined) {
       // multiple selected for deletion
@@ -272,11 +315,11 @@ export class LogPackProvider implements vscode.TreeDataProvider<LogPack | LogPac
       this.previousSelection[0] !== undefined &&
       this.previousSelection[0] === lp &&
       this.previousSelection[1] > Date.now() - 500) {
-        // last selected entry was the same and it was clicked twice within the past 500ms -> double click
-        console.log('download package')
-        this.previousSelection = [undefined, 0]
-        await this.download(lp)
-      }
+      // last selected entry was the same and it was clicked twice within the past 500ms -> double click
+      console.log('download package')
+      this.previousSelection = [undefined, 0]
+      await this.download(lp)
+    }
     else {
       console.log('package selected')
     }

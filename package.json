@@ -2,8 +2,12 @@
   "name": "logpack",
   "displayName": "LogPack",
   "description": "LogPack Explorer",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "publisher": "FeatureNinjas",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/FeatureNinjas/logpack-vscode"
+  },
   "engines": {
     "vscode": "^1.47.0"
   },
@@ -16,7 +20,7 @@
   ],
   "main": "./out/extension.js",
   "contributes": {
-    "configuration":[
+    "configuration": [
       {
         "title": "LogPack",
         "properties": {
@@ -67,6 +71,14 @@
       {
         "command": "logpack.delete",
         "title": "Delete"
+      },
+      {
+        "command": "logpack.removeGroup",
+        "title": "Remove Group"
+      },
+      {
+        "command": "logpack.deleteGroup",
+        "title": "Delete Group"
       }
     ],
     "viewsContainers": {
@@ -121,6 +133,14 @@
         {
           "command": "logpack.delete",
           "when": "view == logpacks && viewItem =~ /^logpack|^logpack.local/"
+        },
+        {
+          "command": "logpack.removeGroup",
+          "when": "view == logpacks && viewItem == group"
+        },
+        {
+          "command": "logpack.deleteGroup",
+          "when": "view == logpacks && viewItem == group"
         }
       ]
     }

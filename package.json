@@ -62,7 +62,11 @@
       },
       {
         "command": "logpack.download",
-        "title": "Download"
+        "title": "Download",
+        "icon": {
+          "light": "assets/download 3.svg",
+          "dark": "assets/download 3.svg"
+        }
       },
       {
         "command": "logpack.remove",

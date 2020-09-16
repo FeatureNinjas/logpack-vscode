@@ -68,17 +68,3 @@ The following list contains features that we're planning to implement in the nex
 - ...
 
 Missing something? Create an issue or contact us directly.
-
-## Release Notes
-
-### 0.0.2
-
-Initial release of LogPacks
-
-### 0.1.0
-
-Created first publishable package
-
-### 0.2.0
-
-Added first version of grouping error messages based on return code

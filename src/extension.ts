@@ -28,7 +28,7 @@ export function activate(context: vscode.ExtensionContext) {
   // The command has been defined in the package.json file
   // Now provide the implementation of the command with registerCommand
   // The commandId parameter must match the command field in package.json
-  vscode.commands.registerCommand('logpack.selectLogPackEntry', async (lpe:LogPackEntry) => {
+  vscode.commands.registerCommand('logpack.selectLogPackEntry', async (lpe: LogPackEntry) => {
     console.log(lpe.path.toString())
     console.log(lpe.file.name)
     const doc = await vscode.workspace.openTextDocument(lpe.path.toString())
@@ -47,4 +47,4 @@ export function activate(context: vscode.ExtensionContext) {
 }
 
 // this method is called when your extension is deactivated
-export function deactivate() {}
+export function deactivate() { }

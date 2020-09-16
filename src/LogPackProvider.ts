@@ -109,6 +109,11 @@ export class LogPackProvider implements vscode.TreeDataProvider<LogPack | LogPac
           for (let i = 0; i < this.data.length; i++) {
             const lp = this.data[i];
             const match = regexGroup.exec(lp.label)
+
+            // reset last index so that exec will start from the beginning
+            // based on answer here: https://stackoverflow.com/a/4724920/1362037
+            regexGroup.lastIndex = 0
+
             if (match !== null) {
               const groupName: string = match[1]
 
@@ -137,11 +142,16 @@ export class LogPackProvider implements vscode.TreeDataProvider<LogPack | LogPac
           return Promise.resolve(groups)
         } else if (this.viewMode === LogPackExplorerViewMode.GroupByDate) {
 
-          const regexGroup = /([0-9]{4})([0-9]{2})([0-9]{2})-[0-9]{6}-\w*-[\w\W]*/g
+          const regexGroup = /([0-9]{4})([0-9]{2})([0-9]{2})-[0-9]{6}-[\w\W-]*/g
           const groups: LogPackGroup[] = new Array<LogPackGroup>()
           for (let i = 0; i < this.data.length; i++) {
             const lp = this.data[i];
             const match = regexGroup.exec(lp.label)
+
+            // reset last index so that exec will start from the beginning
+            // based on answer here: https://stackoverflow.com/a/4724920/1362037
+            regexGroup.lastIndex = 0
+
             if (match !== null) {
               const year: string = match[1]
               const month: string = match[2]
@@ -215,51 +225,16 @@ export class LogPackProvider implements vscode.TreeDataProvider<LogPack | LogPac
   }
 
   async removeGroup(gp: LogPackGroup): Promise<any> {
-    console.log(`About to remove the group ${gp}`)
-    vscode.window.withProgress({
-      location: vscode.ProgressLocation.Notification,
-      title: 'LogPack',
-      cancellable: false
-    }, async (progress) => {
-      for (let i = 0; i < gp.logPacks.length; i++) {
-        console.log(`Deleting on local and remote ${gp.logPacks[i].fileInfo.name}`)
-        await gp.logPacks[i].remove();
-        progress.report({
-          message: `Removed ${i + 1} of ${gp.logPacks.length} LogPacks from local`,
-          increment: (1 / gp.logPacks.length) * 100
-        })
-      }
-      this._onDidChangeTreeData.fire(gp)
-      return new Promise(resolve => {
-        setTimeout(() => { resolve() }, 3000)
-      })
-    })
-    this._onDidChangeTreeData.fire(gp)
+    console.log(`About to remove the group ${gp.label}`)
+    await this.remove(null, gp.logPacks)
   }
 
   async deleteGroup(gp: LogPackGroup): Promise<any> {
-    console.log(`About to delete the group ${gp}`)
-    vscode.window.withProgress({
-      location: vscode.ProgressLocation.Notification,
-      title: 'LogPack',
-      cancellable: false
-    }, async (progress) => {
-      for (let i = 0; i < gp.logPacks.length; i++) {
-        console.log(`Deleting on local and remote ${gp.logPacks[i].fileInfo.name}`)
-        await gp.logPacks[i].delete();
-        progress.report({
-          message: `Deleted ${i + 1} of ${gp.logPacks.length} LogPacks`,
-          increment: (1 / gp.logPacks.length) * 100
-        })
-      }
-      return new Promise(resolve => {
-        setTimeout(() => { resolve() }, 3000)
-      })
-    })
-    this._onDidChangeTreeData.fire()
+    console.log(`About to delete the group ${gp.label}`)
+    await this.delete(null, gp.logPacks)
   }
 
-  async remove(lp: LogPack, lps: LogPack[]): Promise<any> {
+  async remove(lp: LogPack | null, lps: LogPack[]): Promise<any> {
     if (lps !== undefined) {
       // multiple selected for deletion
       console.log(`About to remove ${lps.length} logpacks`)
@@ -267,17 +242,24 @@ export class LogPackProvider implements vscode.TreeDataProvider<LogPack | LogPac
         console.log(`Removing on local ${lps[i].fileInfo.name}`)
         await lps[i].remove();
       }
+      this._onDidChangeTreeData.fire()
+      return new Promise(resolve => {
+        setTimeout(() => { resolve() }, 3000)
+      })
     }
-    else {
+    else if (lp !== null) {
       // only one selected
       console.log(`Removing on local ${lp.fileInfo.name}`)
       await lp.remove()
+      this._onDidChangeTreeData.fire(lp)
     }
-    this._onDidChangeTreeData.fire(lp)
+    else {
+      console.log(`Nothing to remove here`)
+    }
   }
 
-  async delete(lp: LogPack, lps: LogPack[]): Promise<any> {
-    if (lps !== undefined) {
+  async delete(lp: LogPack | null, lps: LogPack[]): Promise<any> {
+    if (lps !== undefined && lps.length > 0) {
       // multiple selected for deletion
       console.log(`About to delete ${lps.length} logpacks`)
 
@@ -300,11 +282,14 @@ export class LogPackProvider implements vscode.TreeDataProvider<LogPack | LogPac
         })
       })
     }
-    else {
+    else if (lp !== null) {
       // only one selected
       console.log(`Deleting on local and remote ${lp.fileInfo.name}`)
       await lp.delete()
       this._onDidChangeTreeData.fire()
+    }
+    else {
+      console.log(`Nothing here to delete`)
     }
   }
 

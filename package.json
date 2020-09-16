@@ -78,11 +78,11 @@
       },
       {
         "command": "logpack.removeGroup",
-        "title": "Remove Group"
+        "title": "Remove all in group"
       },
       {
         "command": "logpack.deleteGroup",
-        "title": "Delete Group"
+        "title": "Delete all in group"
       }
     ],
     "viewsContainers": {

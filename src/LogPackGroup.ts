@@ -14,4 +14,11 @@ export class LogPackGroup extends vscode.TreeItem {
   push(logPack: LogPack) {
     this.logPacks.push(logPack)
   }
+
+  get description(): string {
+    if (this.logPacks) {
+      return this.logPacks.length.toString()
+    }
+    return ""
+  }
 }

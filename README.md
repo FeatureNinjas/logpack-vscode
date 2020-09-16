@@ -3,6 +3,10 @@
     <img width="200" height="200" src="images/logpack-logo-200.png  ">
   </a>
   <br><br>
+  <a href="https://github.com/FeatureNinjas/logpack-vscode/releases">
+    <img alt="GitHub release (latest by date)" src="https://img.shields.io/github/v/release/featureninjas/logpack-vscode">
+  </a>
+  <br><br>
 </div>
 
 LogPack takes snapshots of your system when unexpected errors occur. A LogPack contains more than just logs. It bundles anything that is required to solve the problem.

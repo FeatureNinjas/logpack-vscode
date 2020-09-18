@@ -3,6 +3,10 @@
     <img width="200" height="200" src="images/logpack-logo-200.png  ">
   </a>
   <br><br>
+  <a href="https://github.com/FeatureNinjas/logpack-vscode/releases">
+    <img alt="GitHub release (latest by date)" src="https://img.shields.io/github/v/release/featureninjas/logpack-vscode">
+  </a>
+  <br><br>
 </div>
 
 LogPack takes snapshots of your system when unexpected errors occur. A LogPack contains more than just logs. It bundles anything that is required to solve the problem.
@@ -64,17 +68,3 @@ The following list contains features that we're planning to implement in the nex
 - ...
 
 Missing something? Create an issue or contact us directly.
-
-## Release Notes
-
-### 0.0.2
-
-Initial release of LogPacks
-
-### 0.1.0
-
-Created first publishable package
-
-### 0.2.0
-
-Added first version of grouping error messages based on return code

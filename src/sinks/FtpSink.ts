@@ -32,10 +32,18 @@ export class FtpSink extends Sink {
       const logpacks: LogPack[] = new Array()
       for (let i = 0; i < files.length; i++) {
         const file = files[i]
-        if (file.name.startsWith('logpack') && file.isFile) {
+        if (file.name.startsWith('logpack') && file.name.endsWith('.zip') && file.isFile) {
           const name = file.name.substr(
             file.name.indexOf('-') + 1,
             file.name.length - (file.name.indexOf('-') + 1) - '.zip'.length)
+          const size = this.formatBytes(file.size)
+          const logpack = new LogPack(name, file, this.storagePath?.toString(), size, vscode.TreeItemCollapsibleState.None)
+          logpacks.push(logpack)
+        }
+        if (file.name.endsWith('.logpack') && file.isFile) {
+          const name = file.name.substr(
+            file.name.indexOf('-') + 1,
+            file.name.length - (file.name.indexOf('-') + 1) - '.logpack'.length)
           const size = this.formatBytes(file.size)
           const logpack = new LogPack(name, file, this.storagePath?.toString(), size, vscode.TreeItemCollapsibleState.None)
           logpacks.push(logpack)

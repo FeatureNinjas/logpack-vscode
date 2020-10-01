@@ -2,10 +2,56 @@ import { Sink } from './Sink';
 import { LogPack } from '../LogPack'
 import * as vscode from 'vscode'
 import * as ftp from 'basic-ftp'
+import { Client } from 'basic-ftp';
 
 export class FtpSink extends Sink {
+
+  private client: Client
+
   constructor(protected storagePath: string | undefined) {
     super(storagePath)
+
+    this.client = new ftp.Client()
+  }
+
+  private async ensureConnection() {
+
+    // check if the client is closed, then reopen it
+    if (this.client.closed) {
+      const config = vscode.workspace.getConfiguration('logPack')
+      const ftpServer: string | undefined = config.get('ftp.server')
+      if (ftpServer === '') {
+        vscode.window.showErrorMessage('No FTP server specified for LogPack')
+        return Promise.resolve([])
+      }
+      const ftpUsername: string | undefined = config.get('ftp.user')
+      const ftpPassword: string | undefined = config.get('ftp.password')
+
+      await this.client.access({
+        host: ftpServer,
+        user: ftpUsername,
+        password: ftpPassword
+      });
+    }
+  }
+
+  async delete(lps: LogPack[], progress: (i: number) => void) {
+    await this.ensureConnection()
+    for (let i = 0; i < lps.length; i++) {
+      try {
+        const lp = lps[i]
+        await this.client.remove(lp.fileInfo.name)
+        progress(i)
+        console.log("progress: " + i)
+      } catch (error) {
+        console.error(error);
+      }
+    }
+  }
+
+  async deleteSingle(lp: LogPack) {
+    await this.ensureConnection()
+    await this.client.remove(lp.fileInfo.name)
   }
 
   async list(): Promise<LogPack[] | undefined> {

@@ -136,36 +136,6 @@ export class LogPack extends vscode.TreeItem {
     return Promise.resolve()
   }
 
-  async delete() {
-    if (this.storagePath === undefined) {
-      console.error('storage path not set in download method')
-      return Promise.reject()
-    }
-
-    // delete locally
-    await this.remove()
-
-    const config = vscode.workspace.getConfiguration('logPack')
-    const ftpServer: string | undefined = config.get('ftp.server')
-    if (ftpServer === '') {
-      vscode.window.showErrorMessage('No FTP server specified for LogPack')
-      return Promise.resolve([])
-    }
-    const ftpUsername: string | undefined = config.get('ftp.user')
-    const ftpPassword: string | undefined = config.get('ftp.password')
-
-    // delete on remote
-    const client = new ftp.Client();
-    await client.access({
-      host: ftpServer,
-      user: ftpUsername,
-      password: ftpPassword
-    });
-    await client.remove(this.fileInfo.name)
-
-    return Promise.resolve()
-  }
-
   async deleteFolderRecursive(p: string)  {
     if (fs.existsSync(p)) {
       for (let entry of await afs.readdir(p)) {

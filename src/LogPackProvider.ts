@@ -86,6 +86,7 @@ export class LogPackProvider implements vscode.TreeDataProvider<LogPack | LogPac
       return Promise.resolve(logPackEntries)
     }
     else if (element === undefined) {
+      console.log('Loading tree')
 
       // check if all data has to be reloaded from the server
       if (this.downloadDuringLoad) {
@@ -268,13 +269,17 @@ export class LogPackProvider implements vscode.TreeDataProvider<LogPack | LogPac
         title: 'LogPack',
         cancellable: false
       }, async (progress) => {
-        for (let i = 0; i < lps.length; i++) {
-          console.log(`Deleting on local and remote ${lps[i].fileInfo.name}`)
-          await lps[i].delete();
-          progress.report({
-            message: `Deleted ${i + 1} of ${lps.length} LogPacks`,
-            increment: (1 / lps.length) * 100
+        try {
+          await this.remove(null, lps)
+          const sink = new FtpSink(this.storagePath)
+          await sink.delete(lps, (i) => {
+            progress.report({
+              message: `Deleted ${i + 1} of ${lps.length} LogPacks`,
+              increment: (1 / lps.length) * 100
+            })
           })
+        } catch (error) {
+          console.error(error)
         }
         this._onDidChangeTreeData.fire()
         return new Promise(resolve => {
@@ -285,7 +290,9 @@ export class LogPackProvider implements vscode.TreeDataProvider<LogPack | LogPac
     else if (lp !== null) {
       // only one selected
       console.log(`Deleting on local and remote ${lp.fileInfo.name}`)
-      await lp.delete()
+      await this.remove(null, lps)
+      const sink = new FtpSink(this.storagePath)
+      await sink.deleteSingle(lp)
       this._onDidChangeTreeData.fire()
     }
     else {
